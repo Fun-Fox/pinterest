@@ -1,12 +1,14 @@
-from src.db_utils import is_image_exist, insert_image
 import asyncio
-from db_utils import is_image_exist, insert_image
+from .db_utils import is_image_exist, insert_image
 from dotenv import load_dotenv
 import os
+
+from .image_utils import ImageUtils
 
 # 加载.env文件中的环境变量
 load_dotenv()
 
+__all__ = ['crawl_pinterest']
 
 async def on_response(response):
     """监听网络响应，检测特定接口是否加载完成"""
@@ -70,11 +72,17 @@ async def process_images(conn, images_div):
             if srcset:
                 entries = srcset.split(',')
                 image_urls = [entry.strip().split(' ') for entry in entries]
+                max_image = image_urls[-1][0]
                 print(f'图片 {i + 1},尺寸最大{image_urls[-1][-1]} 的链接: {image_urls[-1][0]}')
-                if not is_image_exist(conn, image_urls[0][0]):
+                if not is_image_exist(conn, image_urls[-1][0]):
                     # 插入所有比例的图片链接
                     for url, scale in image_urls:
-                        insert_image(conn, url)
+                        insert_image(conn, url, scale)
+                    # 下载最大分辨率的图片并保存
+                    image_util = ImageUtils("http://127.0.0.1:10809")
+                    await image_util.download_and_resize_image(
+                        max_image
+                    )
             else:
                 print(f'图片 {i + 1} 没有可用的srcset属性')
 
@@ -86,4 +94,3 @@ async def process_images(conn, images_div):
                     print(f'img Dom结构：{img}')
         else:
             print(f'div {i + 1} 中没有找到 img 元素')
-

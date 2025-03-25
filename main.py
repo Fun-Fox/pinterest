@@ -1,11 +1,10 @@
 import asyncio
-from browser_utils import init_browser, close_browser
-from crawler import crawl_pinterest
-from db_utils import init_db, close_db
+from src import init_browser, close_browser, crawl_pinterest, init_db, close_db
 from dotenv import load_dotenv
 
 # 加载.env文件中的环境变量
 load_dotenv()
+
 
 async def main() -> None:
     # 初始化数据库
@@ -26,6 +25,7 @@ async def main() -> None:
 
     # 关闭数据库连接
     close_db(conn)
+
 
 if __name__ == '__main__':
     asyncio.run(main())

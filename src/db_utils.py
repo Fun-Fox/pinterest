@@ -1,5 +1,7 @@
 import sqlite3
 
+__all__ = ['init_db', 'is_image_exist', 'insert_image', 'close_db']
+
 def init_db():
     conn = sqlite3.connect('pinterest_images.db')
     c = conn.cursor()

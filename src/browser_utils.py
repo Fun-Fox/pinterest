@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 # 加载.env文件中的环境变量
 load_dotenv()
 
+__all__ = ['parse_cookie_string', 'init_browser', 'close_browser']
+
 def parse_cookie_string(cookie_str: str) -> list:
     """解析从浏览器复制的cookie字符串，返回Playwright所需的cookie列表"""
     cookies = []
