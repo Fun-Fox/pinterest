@@ -1,3 +1,4 @@
+import logging
 import os
 from io import BytesIO
 from PIL import Image
@@ -14,6 +15,7 @@ project_root = os.path.dirname(os.path.dirname(current_file_path))
 
 __all__ = ["ImageUtils"]
 
+logging.basicConfig(filename=os.getenv('CRAWLER_LOG'), level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
 
 class ImageUtils:
     def __init__(self, proxy_url=None):
@@ -48,13 +50,13 @@ class ImageUtils:
                             os.makedirs(image_dir)
                         save_path = os.path.join(image_dir, f"{image_name}")
                         image.save(save_path)
-                        print(f"图片已下载，保存至 {save_path}")
+                        logging.info(f"图片已下载，保存至 {save_path}")
                         return True
                     else:
-                        print(f'下载图片失败，状态码: {response.status}')
+                        logging.error(f'下载图片失败，状态码: {response.status}')
                         return False
         except Exception as e:
-            print(f'下载图片时出错: {e}')
+            logging.error(f'下载图片时出错: {e}')
             return False
 
 

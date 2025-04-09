@@ -1,9 +1,12 @@
+import json
+import logging
 import os
 from playwright.async_api import async_playwright
 from dotenv import load_dotenv
 
 # 加载.env文件中的环境变量
 load_dotenv()
+logging.basicConfig(filename=os.getenv('CRAWLER_LOG'), level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
 
 __all__ = ['parse_cookie_string', 'init_browser', 'close_browser']
 
@@ -24,13 +27,19 @@ async def init_browser():
     context = await browser.new_context()
 
     # 解析并设置cookies
-    cookie_str = os.getenv('COOKIE_STRING')
+    if os.path.exists("setting.json"):
+        with open("setting.json", "r") as f:
+            settings = json.load(f)
+        cookie_str = settings.get("COOKIE_STRING")
+    else:
+        cookie_str = os.getenv('COOKIE_STRING')
+
     if cookie_str:
         cookies = parse_cookie_string(cookie_str)
         await context.add_cookies(cookies)
-        print('Cookies 设置成功')
+        logging.info('Cookies 设置成功')
     else:
-        print('未找到环境变量中的 COOKIE_STRING')
+        logging.warning('未找到环境变量中的 COOKIE_STRING')
 
     # 打开页面
     page = await context.new_page()
@@ -39,4 +48,4 @@ async def init_browser():
 async def close_browser(p, browser):
     await browser.close()
     await p.stop()  # 使用 stop() 方法关闭 async_playwright 对象
-    print('浏览器和Playwright资源已关闭')
+    logging.info('浏览器和Playwright资源已关闭')

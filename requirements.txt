@@ -3,3 +3,4 @@ Pillow
 python-dotenv
 aiohttp
 aiohttp-socks
+gradio
