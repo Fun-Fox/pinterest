@@ -37,26 +37,26 @@ def read_log_file():
     if os.path.exists(log_file_path):
         with open(log_file_path, 'r',encoding='utf-8') as f:
             # 将文件指针移动到文件末尾
-            f.seek(0, 2)
-            while True:
+            # f.seek(0, 2)
+            # while True:
                 # 读取新内容
-                new_content = f.read()
-                if new_content:
-                    # 过滤出INFO级别的日志
-                    info_logs = [line for line in new_content.splitlines() if 'INFO' in line]
-                    yield '\n'.join(info_logs)
-                else:
-                    # 如果没有新内容，等待一段时间再检查
-                    time.sleep(1)
+            new_content = f.read()
+            if new_content:
+                # 过滤出INFO级别的日志
+                info_logs = [line for line in new_content.splitlines() if 'INFO' in line]
+                return '\n'.join(info_logs)  # 返回字符串而不是生成器
+            # else:
+            #     # 如果没有新内容，等待一段时间再检查
+            #     time.sleep(1)
     else:
-        yield "未找到日志文件"
+        return "未找到日志文件"  # 返回字符串而不是生成器
 
 async def main():
     # 加载设置
     cookie_string, pinterest_url = load_settings()
     if not cookie_string or not pinterest_url:
         logging.warning("请先设置COOKIE_STRING(Cookie信息) 和 PINTEREST_URL(数据采集URL) ")
-        return
+        return "请先设置COOKIE_STRING(Cookie信息) 和 PINTEREST_URL(数据采集URL)"
 
     # 初始化数据库
     conn = init_db()
@@ -83,7 +83,7 @@ async def main():
         images = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
         if images:
             logging.info(f"Found {len(images)} images in {image_dir}")
-            return images[:10]  # 只返回前10个图片
+            return images[:10] # 返回前10个图片
     logging.warning("No images found in the specified directory.")
     return []
 
@@ -109,7 +109,7 @@ if __name__ == '__main__':
         3. 在【执行采集】页面，点击执行，等待执行成功后，查看采集完成的图片。
         4. 在【采集日志】页面查看爬虫的运行日志。
         """)
-        
+
         with gr.Tab("采集设置"):
             gr.Markdown("### Pinterest 采集设置")
             gr.Markdown("在此页面输入您的 浏览器Cookie 和 采集页面地址 以保存设置。")
@@ -128,22 +128,15 @@ if __name__ == '__main__':
             gr.Markdown("### 执行采集")
             gr.Markdown("执行采集完成后, 在此页面查看前 10 张采集的图片。并显示资源下载链接")
             image_button = gr.Button("执行采集")
-            image_output = gr.Gallery(label="采集的图片", columns=5)
+            with gr.Row():
+                image_output = gr.Gallery(label="采集的图片", columns=5)
             image_button.click(
                 fn=main,
                 inputs=[],
-                outputs=image_output
+                outputs=[image_output]
             )
         with gr.Tab("采集日志"):
-            gr.Markdown("### 采集日志")
-            gr.Markdown("在此页面查看采集的最新日志。")
-            log_button = gr.Button("查看日志")
-            log_output = gr.Textbox(label="日志输出")
-            log_button.click(
-                fn=read_log_file,
-                inputs=[],
-                outputs=log_output
-            )
+            log_output = gr.Textbox(label="日志输出", value=read_log_file,lines=10, every=10)  # 实时输出日志
 
     # 启动 Gradio 界面
     port = find_available_port()
