@@ -1,0 +1,12 @@
+*.db
+*.json
+*.log
+*.xlsx
+*.csv
+*.spec
+*.ini
+/.idea
+/.vscode
+/TaskList
+/ZipList
+/.gradio
