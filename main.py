@@ -9,6 +9,7 @@ import gradio as gr
 from core import init_browser, close_browser, crawl_pinterest_page, init_db, close_db
 from dotenv import load_dotenv
 import argparse
+
 # 加载.env文件中的环境变量
 load_dotenv()
 
@@ -22,8 +23,13 @@ def get_crawler_cookie():
     """
     if os.path.exists("setting.json"):
         with open("setting.json", "r") as f:
-            settings = json.load(f)
-        return settings.get("COOKIE_STRING", "")
+            try:
+                settings = json.load(f)
+                if not settings:  # 判断 settings 是否为空字典
+                    return ""
+                return settings.get("COOKIE_STRING", "")
+            except json.JSONDecodeError:  # 处理文件内容格式错误的情况
+                return ""
     return ""
 
 
@@ -42,7 +48,7 @@ async def start_crawler(url, page_nums):
     # 设置日志文件路径
     log_file_path = os.path.join(task_dir, os.getenv("CRAWLER_LOG", "crawler.log"))
 
-    logging.basicConfig(filename=log_file_path, level=logging.INFO,
+    logging.basicConfig(filename=log_file_path, level=os.getenv("LOG_LEVEL", "INFO"),
                         format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
     logging.debug(f"日志文件路径为：{log_file_path}")
     logging.info("开始采集")
@@ -77,7 +83,7 @@ async def start_crawler(url, page_nums):
     if os.path.exists(image_dir):
         images = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
         if images:
-            logging.info(f"Found {len(images)} images in {image_dir}")
+            logging.info(f"总计找到 {len(images)} 个图片 在 {os.path.basename(image_dir)}")
             if len(images) < int(os.getenv("IMAGE_PRE_VIEW_NUMS")):
                 return images
             return images[:int(os.getenv("IMAGE_PRE_VIEW_NUMS"))]  # 返回任务目录和前10个图片
@@ -109,7 +115,7 @@ def execute_task(url, page_nums):
     """
     # 禁用按钮
     image_button.interactive = False
-    rule = ['/pin', 'www.pinterest.com', 'http']
+    rule = ['www.pinterest.com', 'http']
     for i in rule:
         if i not in url:
             gr.Warning("请输入正确的采集页面地址")
@@ -131,8 +137,8 @@ def save_crawler_settings(cookie_string):
     settings = {
         "COOKIE_STRING": cookie_string,
     }
-    with open("setting.json", "wb") as fp:
-        json.dump(settings, fp)
+    with open("setting.json", "w", encoding='utf-8') as file:
+        json.dump(settings, file, ensure_ascii=False, indent=4)
     return "数据采集设置保存成功"
 
 
@@ -246,8 +252,6 @@ def download_folder(folder_paths):
 
 
 if __name__ == '__main__':
-
-
     # 集成所有功能的 Gradio 界面
     # ====== 下面全是界面布局 ======
     with gr.Blocks() as app:
@@ -282,17 +286,22 @@ if __name__ == '__main__':
         with gr.Tab("执行采集"):
             gr.Markdown(
                 f"""
-                - 输入采集页面地址（示例：https://www.pinterest.com/pin/1234567890 ）
+                - 输入采集页面地址
+                    - 支持以下格式：
+                        - https://www.pinterest.com/pin/1234567890
+                        - https://www.pinterest.com
+                        - https://www.pinterest.com/search/pins/?q=%E6%89%8B%E6%9C%BA&rs=rs&source_id=M9rKxgxg&eq=&etslf=820
                 - 点击【执行采集】按钮，开始采集
                 - 左侧可预览前{os.getenv("IMAGE_PRE_VIEW_NUMS")}张采集的图片
                 - 右侧可查看采集的日志""")
             with gr.Row():
                 pinterest_url = gr.Textbox(label="待采集页面URL地址", max_lines=1)
-                collected_page_nums = gr.Number(label="页面采集分页数量(建议不要大于10,避免被账号封锁)", value=5)
+                collected_page_nums = gr.Number(label="页面采集分页数量(建议不要大于10,避免封锁账号或IP)", value=5)
             image_button = gr.Button("执行采集", interactive=True)  # 初始状态为可用
             with gr.Row():
                 image_output = gr.Gallery(label="采集的图片", columns=10)
-                log_output = gr.Textbox(label="采集日志", value=read_crawler_logs, max_lines=15, every=5)  # 实时输出日志
+                log_output = gr.Textbox(label="采集日志", value=read_crawler_logs, lines=10, max_lines=15,
+                                        every=5)  # 实时输出日志
 
             image_button.click(
                 fn=execute_task,

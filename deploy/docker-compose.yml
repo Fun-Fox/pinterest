@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  pinterest-downloader:
+    build: .
+    ports:
+      - "7861:7861"
+    volumes:
+      - ${TASK_DIR}:/app/${TASK_DIR}
+      - ${ZIP_DIR}:/app/${ZIP_DIR}
+    environment:
+      - PROXY_URL=127.0.0.1:10809
+      - ZIP_DIR=asset/zip
+      - TASK_DIR=asset/task
+    command: ./run.sh

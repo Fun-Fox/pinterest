@@ -36,11 +36,6 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
     if pinterest_url != "":
         pinterest_url = pinterest_url
 
-    # 验证 URL 是否符合规格
-    if '/pin' not in pinterest_url:
-        logging.error("采集路径不符合规格，URL 必须包含 /pin")
-        return
-
     # 打开页面
     if not page.is_closed():
         await page.goto(pinterest_url)

@@ -1,9 +1,12 @@
+import os
 import sqlite3
 
 __all__ = ['init_db', 'is_image_exist', 'insert_image', 'close_db']
 
 
 def init_db():
+    if not os.path.exists('db'):
+        os.makedirs('db')
     conn = sqlite3.connect('db/pinterest_images.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS images
