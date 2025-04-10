@@ -8,7 +8,7 @@ from datetime import datetime
 import gradio as gr
 from core import init_browser, close_browser, crawl_pinterest_page, init_db, close_db
 from dotenv import load_dotenv
-
+import argparse
 # 加载.env文件中的环境变量
 load_dotenv()
 
@@ -246,6 +246,8 @@ def download_folder(folder_paths):
 
 
 if __name__ == '__main__':
+
+
     # 集成所有功能的 Gradio 界面
     # ====== 下面全是界面布局 ======
     with gr.Blocks() as app:
@@ -335,9 +337,12 @@ if __name__ == '__main__':
                 outputs=download_output  # 提供下载链接
             )
 
-        # 启动 Gradio 界面
-        port = find_available_port()
-        app.launch(share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=port)
 
-        # app.launch(server_name="0.0.0.0", allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=port)
-        # share=True 当你在浏览器中访问该地址时，Gradio 服务器就会通过反向代理的方式将用户的请求转发到你的本地 Gradio 应用程序上
+
+        # 使用 argparse 解析命令行参数
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--port', type=int, default=7861, help='Gradio 应用监听的端口号')
+        args = parser.parse_args()
+
+        # 启动 Gradio 界面
+        app.launch(share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=args.port)
