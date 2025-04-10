@@ -14,6 +14,3 @@ RUN  pip install -r requirements.txt
 
 # 暴露端口
 EXPOSE 7861
-
-# 运行启动脚本
-CMD ["./run.sh"]

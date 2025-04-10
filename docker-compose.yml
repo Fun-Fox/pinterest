@@ -4,12 +4,12 @@ services:
   pinterest-downloader:
     image: pinterest-downloader
     ports:
-      - 7862:7861
+      - 7861:7861
     environment:
       - PROXY_URL=http://192.168.1.12:10809
       - ZIP_DIR=/asset/zip
       - TASK_DIR=/asset/task
     volumes:
-      - E:/Service/docker-volumes/task:/asset/task  # 替换为宿主机上的实际路径
-      - E:/Service/docker-volumes/to/host/zip:/asset/zip    # 替换为宿主机上的实际路径
-    command: python main.py --port 7861  # 假设 run.sh 在 /app 目录下
+      - E:/Service/docker-volumes/task:/asset/task
+      - E:/Service/docker-volumes/zip:/asset/zip
+    command: python main.py --port 7861
