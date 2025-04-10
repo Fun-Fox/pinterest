@@ -35,6 +35,6 @@
 ### docker compose 本地启动
 
 ```
-    docker-compose up -d -f
+    docker compose up -d
 ```
 
