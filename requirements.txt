@@ -4,4 +4,3 @@ python-dotenv
 aiohttp
 aiohttp-socks
 gradio
-psutil
