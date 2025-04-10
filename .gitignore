@@ -10,3 +10,5 @@
 /TaskList
 /ZipList
 /.gradio
+__pycache__
+.DS_Store
