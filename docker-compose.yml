@@ -12,4 +12,4 @@ services:
     volumes:
       - E:/Service/docker-volumes/task:/asset/task
       - E:/Service/docker-volumes/zip:/asset/zip
-    command: python main.py --port 7861 &&
+    command: python main.py --port 7861

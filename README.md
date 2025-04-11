@@ -33,7 +33,23 @@
 ```
 
 ### docker compose 本地启动
-
+#### 配置修改
+- PROXY_URL:修改代理服务器地址
+- ZIP_DIR:下载的素材压缩包位置
+- TASK_DIR：任务历史记录保存位置
+#### 修改volumes配置
+E:/Service/docker-volumes为你自己的本地目录
+```
+    environment:
+      - PROXY_URL=http://192.168.1.12:10811
+      - ZIP_DIR=/asset/zip
+      - TASK_DIR=/asset/task
+    volumes:
+      - E:/Service/docker-volumes/task:/asset/task
+      - E:/Service/docker-volumes/zip:/asset/zip
+    command: python main.py --port 7861
+```
+#### 启动命令
 ```
     docker compose up -d
 ```
