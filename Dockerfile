@@ -1,5 +1,6 @@
 # 使用官方 Python 镜像作为基础镜像
-FROM python:3.12
+# FROM  python:3.11-slim
+FROM  chinayin/playwright:1.41.2-chromium-python3.11
 
 # 设置工作目录
 WORKDIR /app
@@ -11,6 +12,7 @@ COPY ../ /app
 
 # 安装项目依赖
 RUN  pip install -r requirements.txt
-
+# RUN  playwright install chromium
+# RUN  playwright install-deps
 # 暴露端口
 EXPOSE 7861
