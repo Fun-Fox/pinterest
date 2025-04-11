@@ -269,10 +269,16 @@ if __name__ == '__main__':
 
         with gr.Tab("采集设置"):
             gr.Markdown("""
-            - 登录Pinterest 网址：https://www.pinterest.com
-            - Ctrl+Shift+i 打开浏览器开发者工具
-            - 切换【网络】tab，选择请求，复制Cookie
-            - 粘贴Cookie 点击保存。
+            ### 获取Cookie方法：
+            
+            1. 打开浏览器\(可选无痕模式启动\)，
+            2. 按 `F12` 打开开发人员工具
+            3. 选择 `（NetWork）网络` 选项卡，选择 `（Fetch/XHR）`过滤条件
+            4. 访问`https://www.pinterest.com/`
+            5. 完成登录
+            6. 选择任意请求，选择`Head（标头）`，找到`Cookie`
+            7. 复制`Cookie`,粘贴入本页面
+            [详细教程](https://gitee.com/grabby_Tester/pinterest/blob/master/doc/Cookie%E8%8E%B7%E5%8F%96%E6%95%99%E7%A8%8B.md)
             """)
             with gr.Row():
                 cookie_input = gr.Textbox(label="COOKIE_STRING(浏览器Cookie)", value=get_crawler_cookie, max_lines=10)
