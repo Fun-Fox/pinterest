@@ -11,7 +11,11 @@ for /f "tokens=5" %%a in ('netstat -an ^| find ":%PORT%"') do (
 )
 
 REM 将端口号传递给 main.py
+
+pip install -r requirements.txt
 python main.py --port %PORT%
+playwright install chromium
+playwright install-deps
 
 REM 打印实际使用的端口号
 echo 启动成功，端口号: %PORT%

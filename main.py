@@ -48,8 +48,15 @@ async def start_crawler(url, page_nums):
     # 设置日志文件路径
     log_file_path = os.path.join(task_dir, os.getenv("CRAWLER_LOG", "crawler.log"))
 
-    logging.basicConfig(filename=log_file_path, level=os.getenv("LOG_LEVEL", "INFO"),
-                        format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
+    logger = logging.getLogger()
+    logger.setLevel(os.getenv("LOG_LEVEL", "INFO"))
+    file_handler = logging.FileHandler(log_file_path, encoding='utf-8')
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    # logging.basicConfig 仅在第一次调用时生效，后续调用会被忽略
+    # logging.basicConfig(filename=log_file_path, level=os.getenv("LOG_LEVEL", "INFO"),
+    #                     format='%(asctime)s - %(levelname)s - %(message)s', encoding='utf-8')
     logging.debug(f"日志文件路径为：{log_file_path}")
     logging.info("开始采集")
 
@@ -357,4 +364,7 @@ if __name__ == '__main__':
         args = parser.parse_args()
 
         # 启动 Gradio 界面
-        app.launch(share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=args.port)
+        app.launch(server_name="0.0.0.0", share=False, allowed_paths=[os.getenv("ZIP_DIR", "tasks"),os.getenv("TASK_DIR", "tasks")],
+                   server_port=args.port)
+
+        # app.launch(share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=args.port)

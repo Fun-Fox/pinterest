@@ -9,6 +9,9 @@ while true; do
     PORT=$((PORT + 1))
 done
 
+pip install -r requirements.txt
+playwright install
+playwright install-deps
 # 将端口号传递给 main.py
 python main.py --port $PORT
 
