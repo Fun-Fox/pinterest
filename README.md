@@ -4,7 +4,12 @@
 
 这是一个用于从 Pinterest 采集图片的工具。通过该工具，工具提供了友好的用户界面，支持设置采集参数、查看采集日志、采集采集结果等功能。
 
+### 采集设置
+
 ![](./doc/1.png)
+
+### 采集结果
+
 ![](./doc/2.png)
 
 ## 使用步骤
@@ -33,12 +38,17 @@
 ```
 
 ### docker compose 本地启动
+
 #### 配置修改
+
 - PROXY_URL:修改代理服务器地址
 - ZIP_DIR:下载的素材压缩包位置
 - TASK_DIR：任务历史记录保存位置
+
 #### 修改volumes配置
+
 E:/Service/docker-volumes为你自己的本地目录
+
 ```
     environment:
       - PROXY_URL=http://192.168.1.12:10811
@@ -49,7 +59,9 @@ E:/Service/docker-volumes为你自己的本地目录
       - E:/Service/docker-volumes/zip:/asset/zip
     command: python main.py --port 7861
 ```
+
 #### 启动命令
+
 ```
     docker compose up -d
 ```
