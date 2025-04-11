@@ -270,8 +270,7 @@ if __name__ == '__main__':
         with gr.Tab("采集设置"):
             gr.Markdown("""
             ### 获取Cookie方法：
-            
-            1. 打开浏览器\(可选无痕模式启动\)，
+            1. 打开浏览器(可选无痕模式启动)，
             2. 按 `F12` 打开开发人员工具
             3. 选择 `（NetWork）网络` 选项卡，选择 `（Fetch/XHR）`过滤条件
             4. 访问`https://www.pinterest.com/`
@@ -358,4 +357,7 @@ if __name__ == '__main__':
         args = parser.parse_args()
 
         # 启动 Gradio 界面
-        app.launch(share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=args.port)
+        app.launch(server_name="0.0.0.0", share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")],
+                   server_port=args.port)
+
+        # app.launch(share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=args.port)
