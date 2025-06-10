@@ -100,7 +100,7 @@ async def start_crawler(url, page_nums, require_element):
                 with open(image_path, "rb") as image_file:
                     image_data = image_file.read()
                     base64_image = base64.b64encode(image_data).decode("utf-8")
-                    result = asyncio.run(image_recognition(base64_image, require_element))
+                    result =  await image_recognition(base64_image, require_element)
                     if result=="Y":
                         recognized_dir = os.path.join(task_dir, "recognized_images")
                         os.makedirs(recognized_dir, exist_ok=True)
@@ -396,11 +396,11 @@ if __name__ == '__main__':
             app.launch(share=False,
                        allowed_paths=[os.getenv('ROOT', ''), os.getenv('ZIP_DIR', ''), os.getenv('TASK_DIR', ''), "tmp",
                                       os.path.join(os.getcwd(), 'Log')],
-                       server_port=args.port, favicon_path="../favicon.ico")
+                       server_port=args.port, favicon_path="favicon.ico")
         elif os.getenv('PLATFORM', '') == 'server':
             app.launch(share=False, server_name="0.0.0.0",
                        allowed_paths=[os.getenv('ROOT', ''), os.getenv('ZIP_DIR', ''), os.getenv('TASK_DIR', ''), "tmp",
                                       os.path.join(os.getcwd(), 'Log')],
-                       server_port=args.port, favicon_path="../favicon.ico")
+                       server_port=args.port, favicon_path="favicon.ico")
 
         # app.launch(share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=args.port)
