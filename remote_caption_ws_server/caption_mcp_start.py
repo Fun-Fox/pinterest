@@ -120,7 +120,8 @@ async def handle_websocket(websocket):
             request = json.loads(message)
             logger.info(f"收到消息: {request}")
             if request.get("tool") == "generate_image_caption":
-                result = generate_image_caption(request.get("image_base64", ""),request.get("require_element", ""))
+                params=request.get("")
+                result = generate_image_caption(params.get("image_base64", ""),params.get("require_element", ""))
                 await websocket.send(json.dumps(result))
             else:
                 await websocket.send(json.dumps({"error": "未知工具"}))
