@@ -10,6 +10,7 @@
 # 安装图片反推模型（图片打标）依赖
 cd remote_caption_ws_server
 pip install -r requirements.txt
+playwright install chromium
 
 # 下载LLaVA模型
 set HF_ENDPOINT=https://hf-mirror.com
