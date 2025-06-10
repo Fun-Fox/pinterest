@@ -9,7 +9,7 @@ load_dotenv()
 
 
 async def fancy_feast_mcp_server(payload):
-    uri = os.getenv("CAPTION_MCP_SERVER_URL")
+    uri = os.getenv("FAMCY_MS_MCP_SERVER_URL")
     try:
         async with websockets.connect(uri) as ws:
             print("已连接到MCP服务器")

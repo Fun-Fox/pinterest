@@ -130,8 +130,8 @@ async def handle_websocket(websocket):
 
 # 主服务器循环
 async def main():
-    logger.info("正在启动MCP服务器在 ws://0.0.0.0:9100...")
-    async with websockets.serve(handle_websocket, "0.0.0.0", 9100):
+    logger.info("正在启动MCP服务器在 ws://0.0.0.0:9200...")
+    async with websockets.serve(handle_websocket, "0.0.0.0", 9200):
         await asyncio.Future()  # 永远运行
 
 
