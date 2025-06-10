@@ -1,12 +1,12 @@
 import asyncio
 import time
 
-from .db_utils import is_image_exist, insert_image
+from core.db_utils import is_image_exist, insert_image
 from dotenv import load_dotenv
 import os
 import json
 
-from .image_utils import ImageUtils
+from core.image_utils import ImageUtils
 
 # 加载.env文件中的环境变量
 load_dotenv()
@@ -44,8 +44,13 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
         logging.error("页面已关闭，无法导航")
         return
 
+    css_selector = '[data-test-id="pinrep-video"]'
     # 第一次加载图片
-    images_div = await page.query_selector_all('[data-test-id="pinrep-video"]')
+    images_div = await page.query_selector_all(css_selector)
+    if len(images_div)==0:
+        images_div = await page.query_selector_all(css_selector)
+        css_selector='[data-test-id="non-story-pin-image"]'
+
     logging.debug(f'在页面上找到 {len(images_div)} 个包含图片的 div 元素')
 
     await process_images(conn, images_div, logging, task_dir)
@@ -64,7 +69,7 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
         await asyncio.sleep(scroll_wait_time)
         # page.on('response', handle_response)
 
-        new_images_div = await page.query_selector_all('[data-test-id="pinrep-video"]')
+        new_images_div = await page.query_selector_all(css_selector)
         await process_images(conn, new_images_div[len(images_div):], logging, task_dir)
 
 

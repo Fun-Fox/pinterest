@@ -4,13 +4,34 @@
 
 这是一个用于从 Pinterest 采集图片的工具。通过该工具，工具提供了友好的用户界面，支持设置采集参数、查看采集日志、采集采集结果等功能。
 
+## AI挑图
+依赖于llama-joycaption-beta-one-hf-llava 所有需要下载模型
+```
+# 安装图片反推模型（图片打标）依赖
+cd remote_caption_ws_server
+pip install -r requirements.txt
+
+# 下载LLaVA模型
+set HF_ENDPOINT=https://hf-mirror.com
+huggingface-cli download fancyfeast/llama-joycaption-beta-one-hf-llava --repo-type=model --local-dir ./fancyfeast/llama-joycaption-beta-one-hf-llava
+
+# 安装PyTorch
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu128
+pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+
+# 安装Triton
+#https://zhuanlan.zhihu.com/p/27131210741
+#pip install -U triton-windows
+#https://blog.csdn.net/a486259/article/details/146451953
+#pip install liger-kernel --no-dependencies
+```
 ### 采集设置
 
-![](./doc/1.png)
+![](../doc/1.png)
 
 ### 采集结果
 
-![](./doc/2.png)
+![](../doc/2.png)
 
 ## 使用步骤
 

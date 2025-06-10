@@ -21,8 +21,12 @@ async def init_browser(logging):
     p = await async_playwright().__aenter__()  # 手动管理async_playwright的生命周期
     # 启动浏览器，根据环境变量HEADLESS决定是否启用有头模式
     headless = os.getenv('HEADLESS', 'True').lower() == 'true'
+    # 设置User-Agent和其他浏览器指纹相关参数
+    user_agent = os.getenv('USER_AGENT',
+                           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36')
+
     browser = await p.chromium.launch(headless=headless)
-    context = await browser.new_context()
+    context = await browser.new_context(user_agent=user_agent)
 
     # 解析并设置cookies
     if os.path.exists("setting.json"):

@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import json
 import logging
 import os
@@ -9,6 +10,8 @@ import gradio as gr
 from core import init_browser, close_browser, crawl_pinterest_page, init_db, close_db
 from dotenv import load_dotenv
 import argparse
+
+from pinterest.core.flow import image_recognition
 
 # 加载.env文件中的环境变量
 load_dotenv()
@@ -21,8 +24,8 @@ def get_crawler_cookie():
     获取保存的爬虫 Cookie 字符串
     :return: 返回从 setting.json 文件中读取的 Cookie 字符串，如果文件不存在或没有 Cookie 信息，则返回空字符串
     """
-    if os.path.exists("setting.json"):
-        with open("setting.json", "r") as f:
+    if os.path.exists("../setting.json"):
+        with open("../setting.json", "r") as f:
             try:
                 settings = json.load(f)
                 if not settings:  # 判断 settings 是否为空字典
@@ -33,7 +36,8 @@ def get_crawler_cookie():
     return ""
 
 
-async def start_crawler(url, page_nums):
+import shutil
+async def start_crawler(url, page_nums, require_element):
     """
     主函数，负责执行 Pinterest 图片采集任务
     :param url: Pinterest 采集页面的 URL 地址
@@ -89,12 +93,29 @@ async def start_crawler(url, page_nums):
 
     if os.path.exists(image_dir):
         images = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
+        # 挑选图
+        if require_element !='':
+            for image in images:
+                image_path = image
+                with open(image_path, "rb") as image_file:
+                    image_data = image_file.read()
+                    base64_image = base64.b64encode(image_data).decode("utf-8")
+                    result = asyncio.run(image_recognition(base64_image, require_element))
+                    if result=="Y":
+                        recognized_dir = os.path.join(task_dir, "recognized_images")
+                        os.makedirs(recognized_dir, exist_ok=True)
+                        # 构建新路径
+                        recognized_path = os.path.join(recognized_dir, os.path.basename(image_path))
+                        # 移动文件（如果需要保留原文件，可改为 shutil.copy）
+                        shutil.move(image_path, recognized_path)
         if images:
             logging.info(f"总计找到 {len(images)} 个图片 在 {os.path.basename(image_dir)}")
             if len(images) < int(os.getenv("IMAGE_PRE_VIEW_NUMS")):
                 return images
             return images[:int(os.getenv("IMAGE_PRE_VIEW_NUMS"))]  # 返回任务目录和前10个图片
     logging.warning("未找到图片")
+    # 挑选图
+
     return []
 
 
@@ -113,7 +134,7 @@ def find_available_port(start_port=7861):
         port += 1
 
 
-def execute_task(url, page_nums):
+def execute_task(url, page_nums, require_element):
     """
     执行采集任务并返回结果
     :param url: Pinterest 采集页面的 URL 地址
@@ -128,7 +149,7 @@ def execute_task(url, page_nums):
             gr.Warning("请输入正确的采集页面地址")
             return
         # 执行任务
-    result = asyncio.run(start_crawler(url, page_nums))
+    result = asyncio.run(start_crawler(url, page_nums, require_element))
     # 启用按钮
     image_button.interactive = True
     return result
@@ -144,7 +165,7 @@ def save_crawler_settings(cookie_string):
     settings = {
         "COOKIE_STRING": cookie_string,
     }
-    with open("setting.json", "w", encoding='utf-8') as file:
+    with open("../setting.json", "w", encoding='utf-8') as file:
         json.dump(settings, file, ensure_ascii=False, indent=4)
     return "数据采集设置保存成功"
 
@@ -261,7 +282,7 @@ def download_folder(folder_paths):
 if __name__ == '__main__':
     # 集成所有功能的 Gradio 界面
     # ====== 下面全是界面布局 ======
-    with gr.Blocks() as app:
+    with gr.Blocks(title="Pinterest") as app:
         # 添加全局说明区域
         gr.Markdown("""
         # Pinterest批量图片采集工具
@@ -316,9 +337,12 @@ if __name__ == '__main__':
                 log_output = gr.Textbox(label="采集日志", value=read_crawler_logs, lines=10, max_lines=15,
                                         every=5)  # 实时输出日志
 
+            require_element = gr.Textbox(label="如果需要挑图，则输入的要求逗号分隔，建议包含人、产品主题，如：美女，丝巾",
+                                         max_lines=1, value='')
+
             image_button.click(
                 fn=execute_task,
-                inputs=[pinterest_url, collected_page_nums],
+                inputs=[pinterest_url, collected_page_nums, require_element],
                 outputs=image_output
             )
 
@@ -365,7 +389,18 @@ if __name__ == '__main__':
         args = parser.parse_args()
 
         # 启动 Gradio 界面
-        app.launch(server_name="0.0.0.0", share=False, allowed_paths=[os.getenv("ZIP_DIR", "tasks"),os.getenv("TASK_DIR", "tasks")],
-                   server_port=args.port)
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--port', type=int, default=7862, help='Gradio 应用监听的端口号')
+        args = parser.parse_args()
+        if os.getenv('PLATFORM', '') == 'local':
+            app.launch(share=False,
+                       allowed_paths=[os.getenv('ROOT', ''), os.getenv('ZIP_DIR', ''), os.getenv('TASK_DIR', ''), "tmp",
+                                      os.path.join(os.getcwd(), 'Log')],
+                       server_port=args.port, favicon_path="../favicon.ico")
+        elif os.getenv('PLATFORM', '') == 'server':
+            app.launch(share=False, server_name="0.0.0.0",
+                       allowed_paths=[os.getenv('ROOT', ''), os.getenv('ZIP_DIR', ''), os.getenv('TASK_DIR', ''), "tmp",
+                                      os.path.join(os.getcwd(), 'Log')],
+                       server_port=args.port, favicon_path="../favicon.ico")
 
         # app.launch(share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=args.port)
