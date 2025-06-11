@@ -13,3 +13,5 @@
 __pycache__
 .DS_Store
 /asset
+/caption/fancyfeast
+/remote_caption_ws_server/fancyfeast

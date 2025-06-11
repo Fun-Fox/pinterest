@@ -82,8 +82,14 @@ is_include: |
 
     # 生成输出
     logger.info("开始生成输出")
-    outputs = fancy_feast_model.get_model().generate(**inputs, max_new_tokens=512, do_sample=True, temperature=0.6,
-                                                     top_p=0.9, use_cache=False, top_k=None)
+    outputs = fancy_feast_model.get_model().generate(**inputs,
+                                                     max_new_tokens=512,
+                                                     do_sample=True,
+                                                     temperature=0.6,
+                                                     top_p=0.9,
+                                                     suppress_tokens=None,
+                                                     use_cache=True,
+                                                     top_k=None)
     result = fancy_feast_model.get_processor().decode(outputs[0], skip_special_tokens=True)
 
     yaml_str = result.split("```yaml")[1].split("```")[0].strip()
@@ -120,7 +126,7 @@ async def handle_websocket(websocket):
             request = json.loads(message)
             logger.info(f"收到消息: {request}")
             if request.get("tool") == "generate_image_caption":
-                params=request.get("")
+                params=request.get("params")
                 result = generate_image_caption(params.get("image_base64", ""),params.get("require_element", ""))
                 await websocket.send(json.dumps(result))
             else:

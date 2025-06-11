@@ -295,6 +295,7 @@ with gr.Blocks() as demo:
 				choices=list(CAPTION_TYPE_MAP.keys()),
 				value="描述性",
 				label="标题类型",
+
 			)
 
 			caption_length = gr.Dropdown(

@@ -28,11 +28,11 @@ pip install --pre torch torchvision torchaudio --index-url https://download.pyto
 ```
 ### 采集设置
 
-![](../doc/1.png)
+![](doc/1.png)
 
 ### 采集结果
 
-![](../doc/2.png)
+![](doc/2.png)
 
 ## 使用步骤
 
