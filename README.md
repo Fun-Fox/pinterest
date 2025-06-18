@@ -40,9 +40,29 @@
 
 ## 直接使用
 
-```commandline
+```
+# 安装项目依赖
 pip install -r requirements.txt
+
 playwright install chromium
+
+
+# 下载视觉模型
+set HF_ENDPOINT=https://hf-mirror.com
+# 下载模型到 项目 目录下
+huggingface-cli download deepseek-ai/Janus-Pro-7B --repo-type=model --local-dir /deepseek-ai/Janus-Pro-7B
+
+# 安装PyTorch
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu128
+pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+
+# 安装Triton（可选）
+#https://zhuanlan.zhihu.com/p/27131210741
+#pip install -U triton-windows
+#https://blog.csdn.net/a486259/article/details/146451953
+#pip install liger-kernel --no-dependencies
+
+# 启动
 python main.py
 ```
 
