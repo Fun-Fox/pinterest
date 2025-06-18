@@ -71,4 +71,4 @@ if __name__ == "__main__":
 
     # 图像分析
     image = ""  # 需要传入图像数据
-    image_understanding(question, image, vl_chat_processor, vl_gpt, tokenizer)
+    to_image_understanding(question, image, vl_chat_processor, vl_gpt, tokenizer)
