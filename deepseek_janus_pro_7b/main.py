@@ -17,7 +17,7 @@ def load_model(model_path):
     return vl_chat_processor, vl_gpt, tokenizer
 
 
-def image_understanding(question, image,vl_chat_processor, vl_gpt, tokenizer):
+def to_image_understanding(question, image,vl_chat_processor, vl_gpt, tokenizer):
     """分析图像并回答问题"""
     # 创建对话结构
     conversation = [

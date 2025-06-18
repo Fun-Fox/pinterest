@@ -10,6 +10,8 @@ from core import init_browser, close_browser, crawl_pinterest_page, init_db, clo
 from dotenv import load_dotenv
 import argparse
 
+from core.tools import image_understanding
+
 # 加载.env文件中的环境变量
 load_dotenv()
 
@@ -70,48 +72,52 @@ async def start_crawler(url, page_nums, require_element):
         return None
 
     # 初始化数据库
-    conn = init_db()
-    # 初始化浏览器
-    p, browser, context, page = await init_browser(logging)  # 接收async_playwright对象
-    logging.info("初始化浏览器完成")
-    # 爬取 Pinterest 页面
-    await crawl_pinterest_page(conn, page, logging, task_dir, url, page_nums)
+    try:
+        conn = init_db()
+        # 初始化浏览器
+        p, browser, context, page = await init_browser(logging)  # 接收async_playwright对象
+        logging.info("初始化浏览器完成")
+        # 爬取 Pinterest 页面
+        await crawl_pinterest_page(conn, page, logging, task_dir, url, page_nums)
 
-    # 关闭页面和上下文
-    await page.close()
-    await context.close()
+        # 关闭页面和上下文
+        await page.close()
+        await context.close()
 
-    # 关闭浏览器
-    await close_browser(p, browser, logging)  # 传递async_playwright对象
+        # 关闭浏览器
+        await close_browser(p, browser, logging)  # 传递async_playwright对象
 
-    # 关闭数据库连接
-    close_db(conn)
+        # 关闭数据库连接
+        close_db(conn)
 
-    # 读取并显示图片
-    image_dir = task_dir
+        # 读取并显示图片
+        image_dir = task_dir
 
-    if os.path.exists(image_dir):
-        images = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
+        if os.path.exists(image_dir):
+            images = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if
+                      f.endswith(('.png', '.jpg', '.jpeg'))]
+            # 挑选图
+            if require_element != '':
+                for image in images:
+                    image_path = image
+                    result = image_understanding(image_path, require_element)
+                    logging.info(f"图片{image_path}：内容标识模型返回的结果为：{result}")
+                    if "Y" in result:
+                        recognized_dir = os.path.join(task_dir, "recognized_images")
+                        os.makedirs(recognized_dir, exist_ok=True)
+                        # 构建新路径
+                        recognized_path = os.path.join(recognized_dir, os.path.basename(image_path))
+                        # 移动文件（如果需要保留原文件，可改为 shutil.copy）
+                        shutil.move(image_path, recognized_path)
+            if images:
+                logging.info(f"总计找到 {len(images)} 个图片 在 {os.path.basename(image_dir)}")
+                if len(images) < int(os.getenv("IMAGE_PRE_VIEW_NUMS")):
+                    return images
+                return images[:int(os.getenv("IMAGE_PRE_VIEW_NUMS"))]  # 返回任务目录和前10个图片
+        logging.warning("未找到图片")
         # 挑选图
-        if require_element != '':
-            for image in images:
-                image_path = image
-                result = image_understanding(image_path, require_element)
-                logging.info(f"图片{image_path}：内容标识模型返回的结果为：{result}")
-                if "Y" in result:
-                    recognized_dir = os.path.join(task_dir, "recognized_images")
-                    os.makedirs(recognized_dir, exist_ok=True)
-                    # 构建新路径
-                    recognized_path = os.path.join(recognized_dir, os.path.basename(image_path))
-                    # 移动文件（如果需要保留原文件，可改为 shutil.copy）
-                    shutil.move(image_path, recognized_path)
-        if images:
-            logging.info(f"总计找到 {len(images)} 个图片 在 {os.path.basename(image_dir)}")
-            if len(images) < int(os.getenv("IMAGE_PRE_VIEW_NUMS")):
-                return images
-            return images[:int(os.getenv("IMAGE_PRE_VIEW_NUMS"))]  # 返回任务目录和前10个图片
-    logging.warning("未找到图片")
-    # 挑选图
+    except Exception as e:
+        logging.info(f"发生错误：{e}")
 
     return []
 
@@ -384,7 +390,6 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser()
         parser.add_argument('--port', type=int, default=7861, help='Gradio 应用监听的端口号')
         args = parser.parse_args()
-
 
         if os.getenv('PLATFORM', '') == 'local':
             app.launch(share=False,

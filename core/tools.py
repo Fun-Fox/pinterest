@@ -1,6 +1,7 @@
 import yaml
 
-from deepseek_janus_pro_7b.main import load_model
+from deepseek_janus_pro_7b.main import load_model, to_image_understanding
+
 
 def image_understanding(image_path, require_element):
     question = f"""
@@ -23,7 +24,7 @@ def image_understanding(image_path, require_element):
 
     # 图像分析
     image = image_path  # 需要传入图像数据
-    ret = image_understanding(question, image, vl_chat_processor, vl_gpt, tokenizer)
+    ret = to_image_understanding(question, image, vl_chat_processor, vl_gpt, tokenizer)
 
     yaml_str = ret.split("```yaml")[1].split("```")[0].strip()
     analysis = yaml.safe_load(yaml_str)
