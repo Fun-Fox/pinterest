@@ -1,4 +1,4 @@
-# Pinterest 图片采集工具
+# Pinterest 图片采集及智能挑图工具
 
 ## 简介
 
