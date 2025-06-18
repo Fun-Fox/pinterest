@@ -53,10 +53,10 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
 
 
     if len(grid_items) > len(pinrep_videos):
-        css_selector = '[data-test-id="pinrep-video"]'
+        css_selector = '[data-grid-item="true"]'
     else:
         # 如果条件不满足，可以设置一个默认的选择器或处理逻辑
-        css_selector = '[data-test-id="non-story-pin-image"]'  # 或者其他的默认选择器
+        css_selector = '[data-test-id="pinrep-video"]'  # 或者其他的默认选择器
 
     # 第一次加载图片
     images_div = await page.query_selector_all(css_selector)
