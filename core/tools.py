@@ -1,6 +1,5 @@
 import yaml
 
-from caption.main import chat_joy_caption
 from PIL import Image
 from io import BytesIO
 
