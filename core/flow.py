@@ -1,3 +1,5 @@
+import yaml
+
 from caption.main import chat_joy_caption
 from PIL import Image
 from io import BytesIO
@@ -5,7 +7,7 @@ from io import BytesIO
 
 async def image_recognition(image_path, require_element):
     prompt_box = f"""
-    重点识别图片中是否包含{require_element}元素：
+    重点识别图片中是否同时包含{require_element}元素：
 
     # 返回格式如下
 
@@ -28,4 +30,7 @@ async def image_recognition(image_path, require_element):
                                    log_prompt=True))
     ret = result[-1]
 
-    return str(ret)
+    yaml_str = ret.split("```yaml")[1].split("```")[0].strip()
+    analysis = yaml.safe_load(yaml_str)
+
+    return str(analysis['is_include'])

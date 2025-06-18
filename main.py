@@ -100,7 +100,7 @@ async def start_crawler(url, page_nums, require_element):
             for image in images:
                 image_path = image
                 result = await image_recognition(image_path, require_element)
-                logging.info(f"图片内容标识模型返回的结果为：{result}")
+                logging.info(f"图片{image_path}：内容标识模型返回的结果为：{result}")
                 if "Y" in result:
                     recognized_dir = os.path.join(task_dir, "recognized_images")
                     os.makedirs(recognized_dir, exist_ok=True)
@@ -337,7 +337,7 @@ if __name__ == '__main__':
                 log_output = gr.Textbox(label="采集日志", value=read_crawler_logs, lines=10, max_lines=15,
                                         every=5)  # 实时输出日志
 
-            require_element = gr.Textbox(label="如果需要挑图，则输入的要求逗号分隔，建议包含人、产品主题，如：美女，丝巾",
+            require_element = gr.Textbox(label="如果需要挑图，则输入的要求逗号分隔，建议包含人、产品主题，如：美女、丝巾",
                                          max_lines=1, value='')
 
             image_button.click(
