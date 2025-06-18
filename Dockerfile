@@ -1,6 +1,6 @@
 # 使用官方 Python 镜像作为基础镜像
 # FROM  python:3.11-slim
-FROM  chinayin/playwright:1.41.2-chromium-python3.11
+FROM  chinayin/playwright:1.52.0-chromium-python3.11
 
 # 设置工作目录
 WORKDIR /app

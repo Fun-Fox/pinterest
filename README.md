@@ -2,10 +2,16 @@
 
 ## 简介
 
-这是一个用于从 Pinterest 采集图片的工具。通过该工具，工具提供了友好的用户界面，支持设置采集参数、查看采集日志、采集采集结果等功能。
+这是一个用于从 Pinterest 采集图片的工具。
+通过该工具，工具提供了友好的用户界面，支持设置采集参数、查看采集日志、采集采集、
+并显示了AI智能挑图 功能。
 
-## AI挑图
+## AI挑图功能额外说明
+
+目前AI挑图功能未支持docker打包，请直接下载代码进行部署运行
+
 依赖于llama-joycaption-beta-one-hf-llava 所有需要下载模型
+
 ```
 # 安装图片反推模型（图片打标）依赖
 cd remote_caption_ws_server
@@ -14,7 +20,8 @@ playwright install chromium
 
 # 下载LLaVA模型
 set HF_ENDPOINT=https://hf-mirror.com
-huggingface-cli download fancyfeast/llama-joycaption-beta-one-hf-llava --repo-type=model --local-dir ./fancyfeast/llama-joycaption-beta-one-hf-llava
+# 下载模型到 项目 目录下
+huggingface-cli download fancyfeast/llama-joycaption-beta-one-hf-llava --repo-type=model --local-dir /fancyfeast/llama-joycaption-beta-one-hf-llava
 
 # 安装PyTorch
 pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu128
@@ -26,6 +33,7 @@ pip install --pre torch torchvision torchaudio --index-url https://download.pyto
 #https://blog.csdn.net/a486259/article/details/146451953
 #pip install liger-kernel --no-dependencies
 ```
+
 ### 采集设置
 
 ![](doc/1.png)
@@ -33,6 +41,10 @@ pip install --pre torch torchvision torchaudio --index-url https://download.pyto
 ### 采集结果
 
 ![](doc/2.png)
+
+### AI挑图
+
+![](doc/4.png)
 
 ## 使用步骤
 
