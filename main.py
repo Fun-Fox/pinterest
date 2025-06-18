@@ -388,10 +388,7 @@ if __name__ == '__main__':
         parser.add_argument('--port', type=int, default=7861, help='Gradio 应用监听的端口号')
         args = parser.parse_args()
 
-        # 启动 Gradio 界面
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--port', type=int, default=7862, help='Gradio 应用监听的端口号')
-        args = parser.parse_args()
+
         if os.getenv('PLATFORM', '') == 'local':
             app.launch(share=False,
                        allowed_paths=[os.getenv('ROOT', ''), os.getenv('ZIP_DIR', ''), os.getenv('TASK_DIR', ''), "tmp",

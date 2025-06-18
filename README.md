@@ -89,8 +89,8 @@ E:/Service/docker-volumes为你自己的本地目录
       - ZIP_DIR=/asset/zip
       - TASK_DIR=/asset/task
     volumes:
-      - E:/Service/docker-volumes/task:/asset/task
-      - E:/Service/docker-volumes/zip:/asset/zip
+      - D:/Service/docker-volumes/task:/asset/task
+      - D:/Service/docker-volumes/zip:/asset/zip
     command: python main.py --port 7861
 ```
 
