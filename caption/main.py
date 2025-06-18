@@ -12,7 +12,7 @@ from typing import Generator
 # 设置模型路径，指向 Hugging Face 上的一个预训练模型仓库。
 # 这个模型是 llama-joycaption-beta-one 的 LLAVA 版本。
 # LLaVA 是一个 多模态大语言模型（Multimodal Large Language Model, MLLM），它结合了 视觉理解能力 和 大型语言模型的推理与生成能力，可以接受图像和文本作为输入，并生成自然语言描述、回答视觉相关问题等。
-MODEL_PATH = "fancyfeast/llama-joycaption-beta-one-hf-llava"
+MODEL_PATH = "../fancyfeast/llama-joycaption-beta-one-hf-llava"
 
 # 加载模型
 # 使用 AutoProcessor 加载与模型配套的处理器（tokenizer + 图像处理器）。
