@@ -99,7 +99,7 @@ async def start_crawler(url, page_nums, require_element):
         if require_element != '':
             for image in images:
                 image_path = image
-                result = await image_recognition(image_path, require_element)
+                result = image_recognition(image_path, require_element)
                 logging.info(f"图片{image_path}：内容标识模型返回的结果为：{result}")
                 if "Y" in result:
                     recognized_dir = os.path.join(task_dir, "recognized_images")

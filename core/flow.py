@@ -5,7 +5,7 @@ from PIL import Image
 from io import BytesIO
 
 
-async def image_recognition(image_path, require_element):
+def image_recognition(image_path, require_element):
     prompt_box = f"""
     重点识别图片中是否同时包含{require_element}元素：
 
