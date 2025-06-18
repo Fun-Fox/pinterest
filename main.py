@@ -11,7 +11,7 @@ from core import init_browser, close_browser, crawl_pinterest_page, init_db, clo
 from dotenv import load_dotenv
 import argparse
 
-from core.flow import image_recognition
+from core.tools import image_recognition, image_understanding
 
 # 加载.env文件中的环境变量
 load_dotenv()
@@ -99,7 +99,7 @@ async def start_crawler(url, page_nums, require_element):
         if require_element != '':
             for image in images:
                 image_path = image
-                result = image_recognition(image_path, require_element)
+                result = image_understanding(image_path, require_element)
                 logging.info(f"图片{image_path}：内容标识模型返回的结果为：{result}")
                 if "Y" in result:
                     recognized_dir = os.path.join(task_dir, "recognized_images")
