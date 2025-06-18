@@ -17,6 +17,7 @@
 ![](doc/2.png)
 
 ### AI挑图
+
 输入挑图的条件
 ![](doc/4.png)
 
@@ -36,6 +37,14 @@
 3. **查看任务记录**：
     - 在【采集任务记录】页面，可以查看所有历史采集任务的记录。
     - 选择任意任务文件夹，点击“打包”按钮，工具将生成 .zip 文件并提供采集链接。
+
+## 直接使用
+
+```commandline
+pip install -r requirements.txt
+playwright install chromium
+python main.py
+```
 
 ## 部署
 
