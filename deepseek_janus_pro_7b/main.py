@@ -17,7 +17,7 @@ def load_model(model_path):
     return vl_chat_processor, vl_gpt, tokenizer
 
 
-def to_image_understanding(question, image,vl_chat_processor, vl_gpt, tokenizer):
+def to_image_understanding(question, image, vl_chat_processor, vl_gpt, tokenizer):
     """分析图像并回答问题"""
     # 创建对话结构
     conversation = [
@@ -52,7 +52,8 @@ def to_image_understanding(question, image,vl_chat_processor, vl_gpt, tokenizer)
     )
 
     answer = tokenizer.decode(outputs[0].cpu().tolist(), skip_special_tokens=True)
-    print(f"{prepare_inputs['sft_format'][0]}", answer)
+    print(f"视觉模型回复的信息：{answer}")
+    return answer
 
 
 if __name__ == "__main__":
@@ -69,5 +70,5 @@ if __name__ == "__main__":
     """
 
     # 图像分析
-    image = "" # 需要传入图像数据
-    image_understanding(question, image,vl_chat_processor, vl_gpt, tokenizer)
+    image = ""  # 需要传入图像数据
+    image_understanding(question, image, vl_chat_processor, vl_gpt, tokenizer)
