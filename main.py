@@ -11,8 +11,6 @@ from core import init_browser, close_browser, crawl_pinterest_page, init_db, clo
 from dotenv import load_dotenv
 import argparse
 
-from core.tools import image_recognition, image_understanding
-
 # 加载.env文件中的环境变量
 load_dotenv()
 
