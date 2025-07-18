@@ -396,12 +396,12 @@ if __name__ == '__main__':
                        allowed_paths=[os.getenv('ROOT', ''), os.getenv('ZIP_DIR', ''), os.getenv('TASK_DIR', ''), "tmp",
                                       os.path.join(os.getcwd(), 'Log')],
                        server_port=args.port, favicon_path="favicon.ico", ssl_certfile="cert.pem",
-                       ssl_keyfile="key.pem")
+                       ssl_keyfile="key.pem",root_path="/pinterest-plugin")
         elif os.getenv('PLATFORM', '') == 'server':
             app.launch(share=False, server_name="0.0.0.0", ssl_verify=False,
                        allowed_paths=[os.getenv('ROOT', ''), os.getenv('ZIP_DIR', ''), os.getenv('TASK_DIR', ''), "tmp",
                                       os.path.join(os.getcwd(), 'Log')],
                        server_port=args.port, favicon_path="favicon.ico", ssl_certfile="cert.pem",
-                       ssl_keyfile="key.pem")
+                       ssl_keyfile="key.pem",root_path="/pinterest-plugin")
 
         # app.launch(share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=args.port)
