@@ -10,7 +10,7 @@ from core import init_browser, close_browser, crawl_pinterest_page, init_db, clo
 from dotenv import load_dotenv
 import argparse
 
-from core.tools import image_understanding
+# from core.tools import image_understanding
 
 # 加载.env文件中的环境变量
 load_dotenv()
@@ -97,18 +97,18 @@ async def start_crawler(url, page_nums, require_element):
             images = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if
                       f.endswith(('.png', '.jpg', '.jpeg'))]
             # 挑选图
-            if require_element != '':
-                for image in images:
-                    image_path = image
-                    result = image_understanding(image_path, require_element)
-                    logging.info(f"图片{image_path}：内容标识模型返回的结果为：{result}")
-                    if "Y" in result:
-                        recognized_dir = os.path.join(task_dir, "recognized_images")
-                        os.makedirs(recognized_dir, exist_ok=True)
-                        # 构建新路径
-                        recognized_path = os.path.join(recognized_dir, os.path.basename(image_path))
-                        # 移动文件（如果需要保留原文件，可改为 shutil.copy）
-                        shutil.move(image_path, recognized_path)
+            # if require_element != '':
+            #     for image in images:
+            #         image_path = image
+            #         result = image_understanding(image_path, require_element)
+            #         logging.info(f"图片{image_path}：内容标识模型返回的结果为：{result}")
+            #         if "Y" in result:
+            #             recognized_dir = os.path.join(task_dir, "recognized_images")
+            #             os.makedirs(recognized_dir, exist_ok=True)
+            #             # 构建新路径
+            #             recognized_path = os.path.join(recognized_dir, os.path.basename(image_path))
+            #             # 移动文件（如果需要保留原文件，可改为 shutil.copy）
+            #             shutil.move(image_path, recognized_path)
             if images:
                 logging.info(f"总计找到 {len(images)} 个图片 在 {os.path.basename(image_dir)}")
                 if len(images) < int(os.getenv("IMAGE_PRE_VIEW_NUMS")):
