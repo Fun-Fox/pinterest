@@ -392,14 +392,16 @@ if __name__ == '__main__':
         args = parser.parse_args()
 
         if os.getenv('PLATFORM', '') == 'local':
-            app.launch(share=False,
+            app.launch(share=False, ssl_verify=False,
                        allowed_paths=[os.getenv('ROOT', ''), os.getenv('ZIP_DIR', ''), os.getenv('TASK_DIR', ''), "tmp",
                                       os.path.join(os.getcwd(), 'Log')],
-                       server_port=args.port, favicon_path="favicon.ico")
+                       server_port=args.port, favicon_path="favicon.ico", ssl_certfile="cert.pem",
+                       ssl_keyfile="key.pem")
         elif os.getenv('PLATFORM', '') == 'server':
-            app.launch(share=False, server_name="0.0.0.0",
+            app.launch(share=False, server_name="0.0.0.0", ssl_verify=False,
                        allowed_paths=[os.getenv('ROOT', ''), os.getenv('ZIP_DIR', ''), os.getenv('TASK_DIR', ''), "tmp",
                                       os.path.join(os.getcwd(), 'Log')],
-                       server_port=args.port, favicon_path="favicon.ico")
+                       server_port=args.port, favicon_path="favicon.ico", ssl_certfile="cert.pem",
+                       ssl_keyfile="key.pem")
 
         # app.launch(share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=args.port)
