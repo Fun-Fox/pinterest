@@ -8,4 +8,4 @@ pillow~=11.1.0
 accelerate~=1.7.0
 loguru>=0.7.3
 gradio~=5.32.1
-git+https://github.com/deepseek-ai/Janus.git
+#git+https://github.com/deepseek-ai/Janus.git

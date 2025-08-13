@@ -84,6 +84,20 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
 
         new_images_div = await page.query_selector_all(css_selector)
         await process_images(conn, new_images_div[len(images_div):], logging, task_dir)
+        # 当从页面中发现存在“找寻更多点子”的文字元素，则停止循环，和抓取
+
+        # 检查“找寻更多点子”文本是否出现在页面中
+        more_ideas_element = await page.query_selector('h1:has-text("找寻更多点子")')
+        if more_ideas_element:
+            logging.info('找到“找寻更多点子”文本，停止滚动和抓取。')
+            break
+
+    logging.info('滚动和抓取完成。')
+
+
+
+
+
 
 
 async def process_images(conn, images_div, logging, task_dir):
