@@ -33,7 +33,15 @@ async def init_browser(logging):
         proxy_settings = ProxySettings(server=os.getenv('PROXY_URL'))
 
     browser = await p.chromium.launch(headless=headless)
-    context = await browser.new_context(user_agent=user_agent, proxy=proxy_settings)
+    # 设置 viewport（屏幕宽度和高度）
+    viewport_width = int(os.getenv('VIEWPORT_WIDTH', 1280))  # 默认宽度为 1920
+    viewport_height = int(os.getenv('VIEWPORT_HEIGHT', 600))  # 默认高度为 1080
+
+    context = await browser.new_context(
+        user_agent=user_agent,
+        proxy=proxy_settings,
+        viewport={"width": viewport_width, "height": viewport_height}  # 设置 viewport
+    )
 
     # 解析并设置cookies
     if os.path.exists("setting.json"):
