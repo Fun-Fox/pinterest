@@ -82,6 +82,25 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
         await asyncio.sleep(scroll_wait_time)
         # page.on('response', handle_response)
 
+        # 判断两个元素的选择器是否存在并比较数量
+        grid_items = await page.query_selector_all('[data-grid-item="true"]')
+        pinrep_videos = await page.query_selector_all('[data-test-id="pinrep-video"]')
+
+        logging.info(f'找到 [data-grid-item="true"] 的个数: {len(grid_items)}')
+        logging.info(f'找到 [data-test-id="pinrep-video"] 的个数: {len(pinrep_videos)}')
+
+        if len(grid_items) > len(pinrep_videos):
+            css_selector = '[data-grid-item="true"]'
+        else:
+            # 如果条件不满足，可以设置一个默认的选择器或处理逻辑
+            css_selector = '[data-test-id="pinrep-video"]'  # 或者其他的默认选择器
+
+        # 第一次加载图片
+        images_div = await page.query_selector_all(css_selector)
+        if len(images_div) == 0:
+            images_div = await page.query_selector_all(css_selector)
+            css_selector = '[data-test-id="non-story-pin-image"]'
+
         new_images_div = await page.query_selector_all(css_selector)
         await process_images(conn, new_images_div[len(images_div):], logging, task_dir)
         # 当从页面中发现存在“找寻更多点子”的文字元素，则停止循环，和抓取
