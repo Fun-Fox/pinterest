@@ -24,7 +24,7 @@ __all__ = ['crawl_pinterest_page']
 #         logging.debug(f'特定接口加载完成: {response.url}')
 
 
-async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",collected_page_nums=10):
+async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",collected_page_nums=10,overwrite_existing=True):
     """
    爬取 Pinterest 页面内容
    :param conn: 数据库连接对象
@@ -102,7 +102,7 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
             css_selector = '[data-test-id="non-story-pin-image"]'
 
         new_images_div = await page.query_selector_all(css_selector)
-        await process_images(conn, new_images_div[len(images_div):], logging, task_dir)
+        await process_images(conn, new_images_div[len(images_div):], logging, task_dir,overwrite_existing)
         # 当从页面中发现存在“找寻更多点子”的文字元素，则停止循环，和抓取
 
         # 检查“找寻更多点子”文本是否出现在页面中
@@ -119,7 +119,7 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
 
 
 
-async def process_images(conn, images_div, logging, task_dir):
+async def process_images(conn, images_div, logging, task_dir,overwrite_existing):
     """
     处理图片元素并保存到数据库
     :param conn: 数据库连接对象
@@ -161,7 +161,7 @@ async def process_images(conn, images_div, logging, task_dir):
                 row = is_image_exist(conn, src)
                 image_name = src.split("/")[-1]
                 if src:
-                    if row is None:
+                    if row is None or  overwrite_existing:
                         image_util = ImageUtils(os.getenv("PROXY_URL"))
                         insert_image(conn, src, task_dir)
                         await image_util.download_and_resize_image(

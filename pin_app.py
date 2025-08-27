@@ -38,7 +38,7 @@ def get_crawler_cookie():
 import shutil
 
 
-async def start_crawler(url, page_nums, require_element):
+async def start_crawler(url, page_nums, require_element, overwrite_existing=True):
     """
     主函数，负责执行 Pinterest 图片采集任务
     :param url: Pinterest 采集页面的 URL 地址
@@ -78,7 +78,7 @@ async def start_crawler(url, page_nums, require_element):
         p, browser, context, page = await init_browser(logging)  # 接收async_playwright对象
         logging.info("初始化浏览器完成")
         # 爬取 Pinterest 页面
-        await crawl_pinterest_page(conn, page, logging, task_dir, url, page_nums)
+        await crawl_pinterest_page(conn, page, logging, task_dir, url, page_nums, overwrite_existing)
 
         # 关闭页面和上下文
         await page.close()
@@ -137,7 +137,7 @@ def find_available_port(start_port=7861):
         port += 1
 
 
-def execute_task(url, page_nums, require_element):
+def execute_task(url, page_nums, require_element, overwrite_existing=True):
     """
     执行采集任务并返回结果
     :param url: Pinterest 采集页面的 URL 地址
@@ -152,7 +152,7 @@ def execute_task(url, page_nums, require_element):
             gr.Warning("请输入正确的采集页面地址")
             return
         # 执行任务
-    result = asyncio.run(start_crawler(url, page_nums, require_element))
+    result = asyncio.run(start_crawler(url, page_nums, require_element, overwrite_existing=True))
     # 启用按钮
     image_button.interactive = True
     return result
@@ -333,6 +333,8 @@ if __name__ == '__main__':
                 - 右侧可查看采集的日志""")
             with gr.Row():
                 pinterest_url = gr.Textbox(label="待采集页面URL地址", max_lines=1)
+                # 增加是否重复下载的checkbox
+                overwrite_existing = gr.Checkbox(label="是否重复下载", value=True)
                 collected_page_nums = gr.Number(label="页面采集分页数量(建议不要大于10,避免封锁账号或IP)", value=5)
             image_button = gr.Button("执行采集", interactive=True)  # 初始状态为可用
             with gr.Row():
@@ -345,7 +347,7 @@ if __name__ == '__main__':
 
             image_button.click(
                 fn=execute_task,
-                inputs=[pinterest_url, collected_page_nums, require_element],
+                inputs=[pinterest_url, collected_page_nums, require_element, overwrite_existing],
                 outputs=image_output
             )
 
@@ -396,12 +398,12 @@ if __name__ == '__main__':
                        allowed_paths=[os.getenv('ROOT', ''), os.getenv('ZIP_DIR', ''), os.getenv('TASK_DIR', ''), "tmp",
                                       os.path.join(os.getcwd(), 'Log')],
                        server_port=args.port, favicon_path="favicon.ico", ssl_certfile="cert.pem",
-                       ssl_keyfile="key.pem",root_path="/pinterest-plugin")
+                       ssl_keyfile="key.pem", root_path="/pinterest-plugin")
         elif os.getenv('PLATFORM', '') == 'server':
             app.launch(share=False, server_name="0.0.0.0", ssl_verify=False,
                        allowed_paths=[os.getenv('ROOT', ''), os.getenv('ZIP_DIR', ''), os.getenv('TASK_DIR', ''), "tmp",
                                       os.path.join(os.getcwd(), 'Log')],
                        server_port=args.port, favicon_path="favicon.ico", ssl_certfile="cert.pem",
-                       ssl_keyfile="key.pem",root_path="/pinterest-plugin")
+                       ssl_keyfile="key.pem", root_path="/pinterest-plugin")
 
         # app.launch(share=False, allowed_paths=[os.getenv("TASK_DIR", "tasks")], server_port=args.port)
