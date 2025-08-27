@@ -109,6 +109,7 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
         more_ideas_element = await page.query_selector('h1:has-text("找寻更多点子")')
         if more_ideas_element:
             logging.info('找到“找寻更多点子”文本，停止滚动和抓取。')
+            # 多增加一次滚动爬取数据的操作，发现少抓了一些数据
             current_scroll_distance = scroll_distance * (i + 2)
             logging.info(f'滚动页面到距离 {current_scroll_distance}px')
             await page.evaluate(f'window.scrollTo(0, {current_scroll_distance})')
