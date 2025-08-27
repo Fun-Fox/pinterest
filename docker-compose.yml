@@ -12,4 +12,4 @@ services:
     volumes:
       - D:/Service/docker-volumes/pinterest/task:/asset/task
       - D:/Service/docker-volumes/pinterest/zip:/asset/zip
-    command: python main.py --port 7861
+    command: python pin_app.py --port 7861

@@ -66,7 +66,7 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
 
     logging.info(f'在页面上找到 {len(images_div)} 个包含图片的 div 元素')
 
-    await process_images(conn, images_div, logging, task_dir)
+    await process_images(conn, images_div, logging, task_dir,overwrite_existing)
 
     # 滚动页面以加载更多内容
     logging.info('开始滚动页面以加载更多内容...')
