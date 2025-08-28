@@ -116,7 +116,7 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="", 
         if more_ideas_element:
             bounding_box = await more_ideas_element.bounding_box()
             if bounding_box:
-                element_top = bounding_box['y']+300  # 元素距离页面顶部的高度
+                element_top = bounding_box['y']+800  # 元素距离页面顶部的高度
                 current_scroll_position = await page.evaluate("window.scrollY")  # 当前滚动位置
                 viewport_height = await page.evaluate("window.innerHeight")  # 视窗高度
 
