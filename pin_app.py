@@ -152,7 +152,7 @@ def execute_task(url, page_nums, require_element, overwrite_existing=True):
             gr.Warning("请输入正确的采集页面地址")
             return
         # 执行任务
-    result = asyncio.run(start_crawler(url, page_nums, require_element, overwrite_existing=True))
+    result = asyncio.run(start_crawler(url, page_nums, require_element, overwrite_existing))
     # 启用按钮
     image_button.interactive = True
     return result

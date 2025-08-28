@@ -1,4 +1,5 @@
 import asyncio
+import math
 import time
 
 from core.db_utils import is_image_exist, insert_image
@@ -24,7 +25,8 @@ __all__ = ['crawl_pinterest_page']
 #         logging.debug(f'特定接口加载完成: {response.url}')
 
 
-async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",collected_page_nums=10,overwrite_existing=True):
+async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="", collected_page_nums=10,
+                               overwrite_existing=True):
     """
    爬取 Pinterest 页面内容
    :param conn: 数据库连接对象
@@ -44,13 +46,14 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
         logging.error("页面已关闭，无法导航")
         return
 
-    # 判断两个元素的选择器是否存在并比较数量
+    await asyncio.sleep(5)
+
+
     grid_items = await page.query_selector_all('[data-grid-item="true"]')
     pinrep_videos = await page.query_selector_all('[data-test-id="pinrep-video"]')
 
     logging.info(f'找到 [data-grid-item="true"] 的个数: {len(grid_items)}')
     logging.info(f'找到 [data-test-id="pinrep-video"] 的个数: {len(pinrep_videos)}')
-
 
     if len(grid_items) > len(pinrep_videos):
         css_selector = '[data-grid-item="true"]'
@@ -60,13 +63,13 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
 
     # 第一次加载图片
     images_div = await page.query_selector_all(css_selector)
-    if len(images_div)==0:
+    if len(images_div) == 0:
         images_div = await page.query_selector_all(css_selector)
-        css_selector='[data-test-id="non-story-pin-image"]'
+        css_selector = '[data-test-id="non-story-pin-image"]'
 
     logging.info(f'在页面上找到 {len(images_div)} 个包含图片的 div 元素')
 
-    await process_images(conn, images_div, logging, task_dir,overwrite_existing)
+    await process_images(conn, images_div, logging, task_dir, overwrite_existing)
 
     # 滚动页面以加载更多内容
     logging.info('开始滚动页面以加载更多内容...')
@@ -75,9 +78,9 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
     scroll_wait_time = int(os.getenv('SCROLL_WAIT_TIME', 5))  # 滚动等待时间
 
     for i in range(scroll_count):
-        current_scroll_distance = scroll_distance * (i + 1)
-        logging.info(f'滚动页面到距离 {current_scroll_distance}px')
-        await page.evaluate(f'window.scrollTo(0, {current_scroll_distance})')
+        # current_scroll_distance = scroll_distance * (i + 1)
+        # logging.info(f'滚动页面到距离 {current_scroll_distance}px')
+        await page.mouse.wheel(0, scroll_distance)
 
         await asyncio.sleep(scroll_wait_time)
         # page.on('response', handle_response)
@@ -89,63 +92,83 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="",c
         logging.info(f'找到 [data-grid-item="true"] 的个数: {len(grid_items)}')
         logging.info(f'找到 [data-test-id="pinrep-video"] 的个数: {len(pinrep_videos)}')
 
-        if len(grid_items) > len(pinrep_videos):
+        if len(grid_items) >= len(pinrep_videos):
             css_selector = '[data-grid-item="true"]'
+            images_div = grid_items
         else:
             # 如果条件不满足，可以设置一个默认的选择器或处理逻辑
             css_selector = '[data-test-id="pinrep-video"]'  # 或者其他的默认选择器
-
+            images_div = pinrep_videos
         # 第一次加载图片
-        images_div = await page.query_selector_all(css_selector)
-        if len(images_div) == 0:
-            images_div = await page.query_selector_all(css_selector)
-            css_selector = '[data-test-id="non-story-pin-image"]'
 
-        new_images_div = await page.query_selector_all(css_selector)
-        await process_images(conn, new_images_div[len(images_div):], logging, task_dir,overwrite_existing)
+        if len(images_div) == 0:
+            css_selector = '[data-test-id="non-story-pin-image"]'
+            new_images_div = await page.query_selector_all(css_selector)
+        else:
+            new_images_div = images_div
+
+        logging.info(f'在在页面上找到 {len(new_images_div)} 个包含图片的 div 元素')
+        await process_images(conn, new_images_div, logging, task_dir, overwrite_existing)
         # 当从页面中发现存在“找寻更多点子”的文字元素，则停止循环，和抓取
 
         # 检查“找寻更多点子”文本是否出现在页面中
         more_ideas_element = await page.query_selector('h1:has-text("找寻更多点子")')
         if more_ideas_element:
+            bounding_box = await more_ideas_element.bounding_box()
+            if bounding_box:
+                element_top = bounding_box['y']  # 元素距离页面顶部的高度
+                current_scroll_position = await page.evaluate("window.scrollY")  # 当前滚动位置
+                viewport_height = await page.evaluate("window.innerHeight")  # 视窗高度
+
+                logging.info(f'元素顶部位置: {element_top}px')
+                logging.info(f'当前滚动位置: {current_scroll_position}px')
+                logging.info(f'视窗高度: {viewport_height}px')
+
+                # 判断元素是否已在视窗中
+                if element_top <= current_scroll_position + viewport_height:
+                    logging.info('元素已在视窗中或已滚过该位置')
+                else:
+                    # 计算还需要滚动的距离
+                    remaining_distance = element_top - (current_scroll_position + viewport_height)
+                    scroll_distance = int(os.getenv('SCROLL_DISTANCE', 1000))
+                    additional_scrolls_needed = math.ceil(remaining_distance / scroll_distance)
+
+                    logging.info(f'还需滚动距离: {remaining_distance}px')
+                    logging.info(f'还需滚动次数: {additional_scrolls_needed}次')
+                    for _ in range(additional_scrolls_needed):
+                        await page.mouse.wheel(0, scroll_distance)
+                        await asyncio.sleep(scroll_wait_time)
+                        grid_items = await page.query_selector_all('[data-grid-item="true"]')
+                        pinrep_videos = await page.query_selector_all('[data-test-id="pinrep-video"]')
+
+                        logging.info(f'找到 [data-grid-item="true"] 的个数: {len(grid_items)}')
+                        logging.info(f'找到 [data-test-id="pinrep-video"] 的个数: {len(pinrep_videos)}')
+
+                        if len(grid_items) >= len(pinrep_videos):
+                            css_selector = '[data-grid-item="true"]'
+                            images_div = grid_items
+                        else:
+                            # 如果条件不满足，可以设置一个默认的选择器或处理逻辑
+                            css_selector = '[data-test-id="pinrep-video"]'  # 或者其他的默认选择器
+                            images_div = pinrep_videos
+                        # 第一次加载图片
+
+                        if len(images_div) == 0:
+                            css_selector = '[data-test-id="non-story-pin-image"]'
+                            new_images_div = await page.query_selector_all(css_selector)
+                        else:
+                            new_images_div = images_div
+
+                        await process_images(conn, new_images_div, logging, task_dir, overwrite_existing)
+
+
             logging.info('找到“找寻更多点子”文本，停止滚动和抓取。')
-            # 多增加一次滚动爬取数据的操作，发现少抓了一些数据
-            current_scroll_distance = scroll_distance * (i + 2)
-            logging.info(f'滚动页面到距离 {current_scroll_distance}px')
-            await page.evaluate(f'window.scrollTo(0, {current_scroll_distance})')
-
-            # 判断两个元素的选择器是否存在并比较数量
-            grid_items = await page.query_selector_all('[data-grid-item="true"]')
-            pinrep_videos = await page.query_selector_all('[data-test-id="pinrep-video"]')
-
-            logging.info(f'找到 [data-grid-item="true"] 的个数: {len(grid_items)}')
-            logging.info(f'找到 [data-test-id="pinrep-video"] 的个数: {len(pinrep_videos)}')
-
-            if len(grid_items) > len(pinrep_videos):
-                css_selector = '[data-grid-item="true"]'
-            else:
-                # 如果条件不满足，可以设置一个默认的选择器或处理逻辑
-                css_selector = '[data-test-id="pinrep-video"]'  # 或者其他的默认选择器
-
-            # 第一次加载图片
-            images_div = await page.query_selector_all(css_selector)
-            if len(images_div) == 0:
-                images_div = await page.query_selector_all(css_selector)
-                css_selector = '[data-test-id="non-story-pin-image"]'
-
-            new_images_div = await page.query_selector_all(css_selector)
-            await process_images(conn, new_images_div[len(images_div):], logging, task_dir, overwrite_existing)
             break
 
     logging.info('滚动和抓取完成。')
 
 
-
-
-
-
-
-async def process_images(conn, images_div, logging, task_dir,overwrite_existing):
+async def process_images(conn, images_div, logging, task_dir, overwrite_existing):
     """
     处理图片元素并保存到数据库
     :param conn: 数据库连接对象
@@ -168,7 +191,7 @@ async def process_images(conn, images_div, logging, task_dir,overwrite_existing)
 
                 row = is_image_exist(conn, image_urls[-1][0])
                 image_name = image_urls[-1][0].split("/")[-1]
-                if row is None:
+                if row is None or overwrite_existing:
                     for url, scale in image_urls:
                         insert_image(conn, url, task_dir, scale)
                     image_util = ImageUtils(os.getenv("PROXY_URL"))
@@ -187,7 +210,7 @@ async def process_images(conn, images_div, logging, task_dir,overwrite_existing)
                 row = is_image_exist(conn, src)
                 image_name = src.split("/")[-1]
                 if src:
-                    if row is None or  overwrite_existing:
+                    if row is None or overwrite_existing:
                         image_util = ImageUtils(os.getenv("PROXY_URL"))
                         insert_image(conn, src, task_dir)
                         await image_util.download_and_resize_image(

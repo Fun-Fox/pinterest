@@ -30,6 +30,14 @@ class ImageUtils:
         :param image_name: 保存的图片名称（可选）
         :return: 下载是否成功
         """
+        if image_name is None:
+            image_name = url.split('/')[-1]
+        image_dir = task_dir
+        save_path = os.path.join(image_dir, f"{image_name}")
+        if os.path.exists(save_path):
+            logging.info(f"图片 {image_name} 已经下载并存在")
+            return True
+
         if self.proxy_url:
             connector = ProxyConnector.from_url(self.proxy_url)
         else:
@@ -45,13 +53,13 @@ class ImageUtils:
                         image_data = BytesIO(await response.read())
                         image = Image.open(image_data)
 
-                        if image_name is None:
-                            image_name = url.split('/')[-1]
-                        image_dir = task_dir
-                        # print(image_dir)
-                        # if image_dir and not os.path.exists(image_dir):
-                        #     os.makedirs(image_dir)
-                        save_path = os.path.join(image_dir, f"{image_name}")
+                        # if image_name is None:
+                        #     image_name = url.split('/')[-1]
+                        # image_dir = task_dir
+                        # # print(image_dir)
+                        # # if image_dir and not os.path.exists(image_dir):
+                        # #     os.makedirs(image_dir)
+                        # save_path = os.path.join(image_dir, f"{image_name}")
                         image.save(save_path)
                         logging.info(f"图片下载成功")
                         return True
