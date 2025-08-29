@@ -115,7 +115,7 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="", 
         if more_ideas_element:
             bounding_box = await more_ideas_element.bounding_box()
             if bounding_box:
-                element_top = bounding_box['y']   # 元素距离页面顶部的高度
+                element_top = bounding_box['y'] + 2000  # 元素距离页面顶部的高度
                 current_scroll_position = await page.evaluate("window.scrollY")  # 当前滚动位置
                 # viewport_height = await page.evaluate("window.innerHeight")  # 视窗高度
 
@@ -124,7 +124,7 @@ async def crawl_pinterest_page(conn, page, logging, task_dir, pinterest_url="", 
                 # logging.info(f'视窗高度: {viewport_height}px')
 
                 # 判断元素是否已在视窗中
-                if element_top <= current_scroll_position :
+                if element_top <= current_scroll_position:
                     logging.info('元素已在视窗中或已滚过该位置')
                 else:
                     # 计算还需要滚动的距离
