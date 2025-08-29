@@ -6,7 +6,7 @@ services:
     ports:
       - 7861:7861
     environment:
-      - PROXY_URL=http://192.168.31.85:10811
+      - PROXY_URL=http://192.168.1.12:10811
       - ZIP_DIR=/asset/zip
       - TASK_DIR=/asset/task
     volumes:
